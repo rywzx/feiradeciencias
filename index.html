@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Feira de Ciências - Mapa Seguro</title>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Mapa seguro para a Feira de Ciências com localização em tempo real e áreas iluminadas.">
+  <meta name="keywords" content="mapa seguro, feira de ciências, localização, rota segura, iluminação, segurança">
+  <meta name="author" content="Seu Nome">
+  <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
+  <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
+  <style>
+    body {
+      margin: 0;
+      font-family: Arial, sans-serif;
+      background-color: #f2f2f2;
+    }
+
+    #map {
+      height: 100vh;
+    }
+
+    #painel-botoes {
+      position: absolute;
+      top: 10px;
+      left: 10px;
+      padding: 10px;
+      border-radius: 8px;
+      z-index: 1000;
+      background: white;
+      color: black;
+      box-shadow: 0 0 8px rgba(0,0,0,0.3);
+    }
+
+    button {
+      background-color: #0066cc;
+      color: white;
+      border: none;
+      padding: 10px;
+      border-radius: 6px;
+      cursor: pointer;
+      margin-bottom: 5px;
+      width: 160px;
+      text-align: center;
+      font-weight: bold;
+      font-size: 14px;
+    }
+
+    button:hover {
+      background-color: #004d99;
+    }
+
+    /* Responsivo para celulares */
+    @media (max-width: 600px) {
+      button {
+        padding: 8px;
+        width: 120px;
+        font-size: 12px;
+      }
+
+      #painel-botoes {
+        padding: 8px;
+        top: 5px;
+        left: 5px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div id="map"></div>
+
+  <div id="painel-botoes">
+    <button onclick="toggleIluminacao()">Alternar Iluminação</button><br><br>
+    <button onclick="localizarUsuario()">Minha Localização</button><br><br>
+    <button onclick="denunciar()">Denunciar Área Perigosa</button><br><br>
+    <button onclick="contato()">Contato</button><br><br>
+    <button onclick="zoomIn()">+</button>
+    <button onclick="zoomOut()">-</button>
+  </div>
+
+  <script>
+    const map = L.map('map').setView([-28.4835, -48.7825], 17);
+
+    let camadaAtual = L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+      maxZoom: 19,
+      attribution: '&copy; OpenStreetMap'
+    }).addTo(map);
+
+    const iluminadas = [
+      [-28.482940, -48.783350],
+      [-28.483056, -48.782750]
+    ];
+
+    const iluminadosLayer = L.layerGroup();
+    iluminadas.forEach(coords => {
+      L.circle(coords, {
+        color: 'yellow',
+        fillColor: 'yellow',
+        fillOpacity: 0.5,
+        radius: 20
+      }).addTo(iluminadosLayer);
+    });
+    iluminadosLayer.addTo(map);
+
+    function toggleIluminacao() {
+      if (map.hasLayer(iluminadosLayer)) {
+        map.removeLayer(iluminadosLayer);
+      } else {
+        map.addLayer(iluminadosLayer);
+      }
+    }
+
+    let marcadorUsuario;
+
+    function localizarUsuario() {
+      map.locate({ setView: true, maxZoom: 18 });
+    }
+
+    map.on('locationfound', function (e) {
+      if (marcadorUsuario) {
+        marcadorUsuario.setLatLng(e.latlng);
+      } else {
+        marcadorUsuario = L.marker(e.latlng).addTo(map).bindPopup("Você está aqui.").openPopup();
+      }
+    });
+
+    map.on('locationerror', function() {
+      alert('Não foi possível obter sua localização. Verifique as permissões do navegador.');
+    });
+
+    function denunciar() {
+      alert('Área perigosa registrada. Obrigado pela sua contribuição!');
+    }
+
+    function contato() {
+      alert('Em caso de emergência, ligue 190 ou procure um responsável no evento.');
+    }
+
+    function zoomIn() {
+      map.zoomIn();
+    }
+
+    function zoomOut() {
+      map.zoomOut();
+    }
+  </script>
+</body>
+</html>
